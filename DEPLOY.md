@@ -63,7 +63,8 @@ Nel Railway dashboard, aggiungi anche:
 ## ⚙️ Riavvio automatico
 
 ### Serverless
-Selezionate setting e fleg Enable Serverless
+Selezionate setting, Custom Start Command mettete: node bot.js,
+fleg Enable Serverless.
 
 
 ## 🔧 Gestione manuale
