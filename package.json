@@ -1,15 +1,16 @@
 {
   "name": "gm-coffee-bot",
   "version": "1.0.0",
+  "description": "Bot Discord per GM coffee",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
   },
+  "engines": {
+    "node": ">=20.x"
+  },
   "dependencies": {
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1"
-  },
-  "engines": {
-    "node": ">=20.x"
   }
 }
