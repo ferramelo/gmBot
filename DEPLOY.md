@@ -64,7 +64,7 @@ Nel Railway dashboard, aggiungi anche:
 
 ### Serverless
 - Abilita Serverless → così il container dorme quando non ci sono richieste.
-- Start Command: node bot.js
+- Start Command: `node bot.js `
 - Restart Policy: non serve, il bot si riattiva automaticamente quando arriva un messaggio.
   
   Con questa configurazione:
