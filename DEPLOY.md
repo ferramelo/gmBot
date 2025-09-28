@@ -132,6 +132,7 @@ Il bot permetterà solo "gm" nel canale #gm, cancellando tutto il resto
 ### Bot non risponde:
 - Assicurati che il canale si chiami esattamente "gm"
 - Controlla i permessi del bot nel server Discord
+- Metti il tuo id del canale #gm 
 
 ### Superi le 500 ore:
 - Upgrading a Railway Pro ($5/mese) per uptime illimitato
