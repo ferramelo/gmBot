@@ -84,12 +84,12 @@ Nei log vedrai:
 ```
 Avvio del bot in orario attivo...
 Bot connesso come NomeBot#1234!
-Orario attivo: 07:00-13:00
+Orario attivo: 07:00-12:00
 ```
 
 O se fuori orario:
 ```
-Fuori orario (07:00-13:00) - bot non avviato
+Fuori orario (07:00-12:00) - bot non avviato
 ```
 
 ## ✅ Verifica che funzioni
