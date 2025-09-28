@@ -8,13 +8,13 @@ Bot Discord che gestisce il canale #gm con orari programmati e moderazione autom
 ## 🚀 Funzionalità
 
 ### Orario Attivo (07:00-13:00)
-- ✅ Canale #gm **sbloccato**
+- ✅ Canale #gm 
 - ☕ Risponde a "gm" con emoji caffè  
 - 🗑️ Cancella messaggi diversi da "gm"
 - 💬 Avvisi gentili per messaggi non validi
 
 ### Orario Inattivo (13:00-07:00) 
-- 🔒 Canale #gm **bloccato** completamente
+- 🔒 Canale #gm 
 - 🚫 Nessuno può scrivere
 - ⏰ Avvisi "torna domani mattina"
 
