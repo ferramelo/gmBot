@@ -1,10 +1,11 @@
 {
   "name": "gm-coffee-bot",
   "version": "1.0.0",
+  "description": "Bot Discord GM Coffee",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
-    "scheduler": "echo 'Usa Cron di Railway per riavvio automatico'"
+    "scheduler": "echo 'Usa Cron di Railway per gestire avvio e stop automatico'"
   },
   "dependencies": {
     "discord.js": "^14.14.1",
@@ -12,5 +13,7 @@
   },
   "engines": {
     "node": ">=20.x"
-  }
+  },
+  "author": "Carmelo Ferraro",
+  "license": "MIT"
 }
