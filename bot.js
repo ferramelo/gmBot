@@ -1,7 +1,7 @@
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 
-const GM_CHANNEL_ID = "1172876256547721262";
+const GM_CHANNEL_ID = "1172876256547721262"; // Metti id tuo conale #gm
 
 const client = new Client({
   intents: [
