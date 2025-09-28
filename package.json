@@ -1,18 +1,16 @@
 {
   "name": "gm-coffee-bot",
-  "version": "2.0.0",
-  "description": "Bot Discord GM con orario 07:00-13:00 e blocco canale",
-  "main": "channel-moderator-bot.js",
+  "version": "1.0.0",
+  "description": "Bot Discord che risponde ai GM con caffè (07:00-13:00)",
+  "main": "bot.js",
   "scripts": {
-    "start": "node channel-moderator-bot.js"
+    "start": "node bot.js",
+    "scheduler": "node restart-scheduler.js"
   },
   "dependencies": {
     "discord.js": "^14.14.1"
   },
   "engines": {
     "node": ">=16.0.0"
-  },
-  "keywords": ["discord", "bot", "gm", "coffee", "moderator", "schedule"],
-  "author": "Il tuo nome",
-  "license": "MIT"
+  }
 }
