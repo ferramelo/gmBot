@@ -9,7 +9,7 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent, // Assicurati che l'intent sia abilitato nel Developer Portal
     ]
 });
 
@@ -19,33 +19,40 @@ function isActiveTime() {
     return hour >= 7 && hour < 13;
 }
 
-// Blocca o sblocca canale
-async function toggleChannelPermissions(guild, block = true) {
+// Modifica permessi del canale
+async function toggleChannelPermissions(guild, allow = true) {
     try {
         const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
         if (!gmChannel) return console.log('⚠️ Canale GM non trovato');
 
         await gmChannel.permissionOverwrites.edit(guild.roles.everyone, {
-            [PermissionFlagsBits.SendMessages]: !block
+            [PermissionFlagsBits.SendMessages]: allow
         });
 
-        console.log(block
-            ? `🔒 Canale GM BLOCCATO`
-            : `🔓 Canale GM SBLOCCATO`
+        console.log(allow
+            ? `🔓 Canale GM SBLOCCATO`
+            : `🔒 Canale GM BLOCCATO`
         );
     } catch (err) {
         console.error('❌ Errore nel modificare i permessi:', err);
     }
 }
 
-// Ready
-client.once('ready', async () => {
+// Evento clientReady (sostituisce ready)
+client.once('clientReady', async () => {
     console.log(`✅ Bot avviato come ${client.user.tag}`);
 
     for (const guild of client.guilds.cache.values()) {
-        // Blocca o sblocca in base all'orario attuale
-        await toggleChannelPermissions(guild, !isActiveTime());
+        await toggleChannelPermissions(guild, isActiveTime());
     }
+
+    // Controlla ogni minuto se cambiare stato del canale
+    setInterval(async () => {
+        const allow = isActiveTime();
+        for (const guild of client.guilds.cache.values()) {
+            await toggleChannelPermissions(guild, allow);
+        }
+    }, 60 * 1000);
 });
 
 // Gestione messaggi
@@ -75,3 +82,4 @@ client.on('messageCreate', async (message) => {
 
 // Login
 client.login(process.env.DISCORD_TOKEN);
+
