@@ -37,12 +37,12 @@ gm-bot/
 ## 🛡️ Come funziona il sistema completo
 
 ### 🕐 **Orario ATTIVO (07:00-13:00):**
-- ✅ Canale #gm **sbloccato** - tutti possono scrivere
+- ✅ Canale #gm - tutti possono scrivere
 - ✅ Bot risponde a "gm" con ☕
 - 🗑️ Bot cancella messaggi diversi da "gm" (con avviso gentile)
 
 ### 🌙 **Orario INATTIVO (13:00-07:00):**  
-- 🔒 Canale #gm **bloccato** - nessuno può scrivere
+- 🔒 Canale #gm - nessuno può scrivere
 - 🚫 Se qualcuno prova a scrivere, il messaggio viene cancellato
 - ⏰ Bot invia avviso: "Torna domani mattina per dire gm!"
 
@@ -66,19 +66,13 @@ Nel Railway dashboard, aggiungi anche:
 - **Nome**: `TZ`
 - **Valore**: `Europe/Rome` (o il tuo fuso orario)
 
-## ⚙️ Opzioni per riavvio automatico
+## ⚙️ Riavvio automatico
 
-### Opzione 1: Railway Cron Jobs (Semplice)
+### Railway Cron Jobs (Semplice)
 Railway può riavviare automaticamente il servizio:
 1. Nel dashboard, vai su "Settings"
 2. Aggiungi Cron Job: `0 7 * * *` (ogni giorno alle 07:00)
 3. Il bot si riavvierà automaticamente ogni mattina
-
-### Opzione 2: Webhook esterno
-Usa uno script scheduler esterno (GitHub Actions, cron-job.org)
-
-### Opzione 3: Script interno
-Usa `restart-scheduler.js` come servizio separato su Railway
 
 ## 🔧 Gestione manuale
 
