@@ -19,17 +19,17 @@ gm-bot/
 {
   "name": "gm-coffee-bot",
   "version": "1.0.0",
-  "description": "Bot Discord che risponde ai GM con caffè (07:00-13:00)",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
-    "scheduler": "node restart-scheduler.js"
+    "scheduler": "echo 'Usa Cron di Railway per riavvio automatico'"
   },
   "dependencies": {
-    "discord.js": "^14.14.1"
+    "discord.js": "^14.14.1",
+    "dotenv": "^16.3.1"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=20.x"
   }
 }
 ```
