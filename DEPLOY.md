@@ -17,9 +17,9 @@ gm-bot/
 ### 2. Crea `package.json`
 ```json
 {
-  "name": "gm-coffee-bot",
+  "name": "gmBot",
   "version": "1.0.0",
-  "description": "Bot Discord per GM coffee",
+  "description": "Bot Discord per GM",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js"
