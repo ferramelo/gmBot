@@ -50,12 +50,6 @@ gm-bot/
 - Bot attivo 24/7 ma consuma poche risorse
 - ~**50-100 ore/mese** (molto meno del limite 500!)
 
-## ✅ **Funzionalità avanzate:**
-- **Auto-blocco/sblocco** canale basato su orario
-- **Messaggi temporanei** di avviso (si cancellano da soli)
-- **Logging dettagliato** di tutte le azioni
-- **Gestione errori** robusta
-
 ## Deploy su Railway
 
 ### Step 1-3: Come nella guida normale
@@ -70,7 +64,7 @@ Nel Railway dashboard, aggiungi anche:
 
 ### Railway Cron Jobs (Semplice)
 Railway può riavviare automaticamente il servizio:
-1. Nel dashboard, vai su "Settings"
+1. Nella dashboard, vai su "Settings"
 2. Aggiungi Cron Job: `0 7 * * *` (ogni giorno alle 07:00)
 3. Il bot si riavvierà automaticamente ogni mattina
 
