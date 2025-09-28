@@ -20,7 +20,7 @@ Bot Discord che gestisce il canale #gm con orari programmati e moderazione autom
 
 ## 📋 Requisiti
 
-- Node.js 16+
+- Node.js 20+
 - Bot Discord con permessi:
   - Read Messages/View Channels
   - Send Messages
