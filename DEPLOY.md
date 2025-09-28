@@ -43,7 +43,7 @@ gm-bot/
 
 ### 🌙 **Orario INATTIVO (12:00-07:00):**  
 - 🔒 Canale #gm - nessuno può scrivere
-- 🚫 Se qualcuno prova a scrivere, il messaggio viene cancellato
+- 🚫 Canale **Bloccato**
 - ⏰ Bot invia avviso: "Torna domani mattina per dire gm!"
 
 ### 📊 **Calcolo ore Railway:**
@@ -60,11 +60,17 @@ Nel Railway dashboard, aggiungi anche:
 - **Nome**: `TZ`
 - **Valore**: `Europe/Rome` (o il tuo fuso orario)
 
-## ⚙️ Riavvio automatico
+## ⚙️ Come configurare su Railway Free:
 
 ### Serverless
-Selezionate setting, Custom Start Command mettete: node bot.js,
-fleg Enable Serverless.
+- Abilita Serverless → così il container dorme quando non ci sono richieste.
+- Start Command: node bot.js
+- Restart Policy: non serve, il bot si riattiva automaticamente quando arriva un messaggio.
+  
+  Con questa configurazione:
+- Il bot usa pochissime ore perché è inattivo quando nessuno scrive.
+- Il canale GM rimane bloccato fuori orario.
+- Ricevi avvisi se qualcuno scrive qualcosa di diverso da "gm".
 
 
 ## 🔧 Gestione manuale
