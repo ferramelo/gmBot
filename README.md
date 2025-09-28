@@ -1,4 +1,4 @@
-# gmBot-
+# gmBot
 #gm sarà un perfetto "orario d'ufficio" per i saluti mattutini su Discord! 🌅☕
 
 # 🌅☕ GM Moderator Bot
@@ -14,7 +14,7 @@ Bot Discord che gestisce il canale #gm con orari programmati e moderazione autom
 - 💬 Avvisi gentili per messaggi non validi
 
 ### Orario Inattivo (12:00-07:00) 
-- 🔒 Canale #gm 
+- 🔒 Canale #gm **Bloccato**
 - 🚫 Nessuno può scrivere
 - ⏰ Avvisi "torna domani mattina"
 
