@@ -1,8 +1,9 @@
+// bot.js
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 
 // ID del canale GM
-const GM_CHANNEL_ID = process.env.GM_CHANNEL_ID;
+const GM_CHANNEL_ID = "1172876256547721262";
 
 // Crea il client
 const client = new Client({
@@ -19,7 +20,7 @@ function isActiveTime() {
     return hour >= 7 && hour < 12;
 }
 
-// Modifica permessi canale (solo invio messaggi)
+// Modifica permessi del canale per invio messaggi
 async function toggleChannelPermissions(guild, allowSend = true) {
     try {
         const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
@@ -42,12 +43,11 @@ async function toggleChannelPermissions(guild, allowSend = true) {
 client.once('ready', async () => {
     console.log(`✅ Bot avviato come ${client.user.tag}`);
 
-    // Aggiorna permessi GM appena parte il bot
     for (const guild of client.guilds.cache.values()) {
         await toggleChannelPermissions(guild, isActiveTime());
     }
 
-    // Aggiorna permessi ogni minuto
+    // Controlla ogni minuto se modificare i permessi
     setInterval(async () => {
         const active = isActiveTime();
         for (const guild of client.guilds.cache.values()) {
@@ -61,18 +61,18 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (message.channel.id !== GM_CHANNEL_ID) return;
 
-    // Messaggio fuori orario: cancellato + avviso
+    // Fuori orario: cancella + avviso
     if (!isActiveTime()) {
         await message.delete().catch(() => {});
         const warning = await message.channel.send(
-            `⏰ ${message.author}, il canale GM è attivo solo dalle **07:00 alle 12:00 UTC**! Torna domani ☕`
+            `⏰ ${message.author}, il canale GM è attivo solo dalle 07:00 alle 12:00 UTC! Torna domani mattina ☕`
         );
         setTimeout(() => warning.delete().catch(() => {}), 10000);
         console.log(`🚫 Messaggio fuori orario cancellato da ${message.author.username}`);
         return;
     }
 
-    // Solo "gm" permesso
+    // Messaggi diversi da "gm"
     if (message.content.toLowerCase().trim() !== 'gm') {
         await message.delete().catch(() => {});
         const info = await message.channel.send(
