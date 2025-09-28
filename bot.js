@@ -48,7 +48,7 @@ client.on('messageCreate', async (message) => {
   if (!isActiveTime()) {
     await message.delete().catch(() => {});
     const warning = await message.channel.send(
-      `⏰ ${message.author}, ci vediamo domani mattina alle 07 ☕`
+      `⏰ ${message.author}, ci vediamo domani mattina alle 07:00 ☕`
     );
     setTimeout(() => warning.delete().catch(() => {}), 10000);
     return;
