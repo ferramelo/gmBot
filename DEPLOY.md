@@ -89,7 +89,7 @@ Orario attivo: 07:00-12:00
 
 O se fuori orario:
 ```
-Fuori orario (07:00-12:00) - bot non avviato
+Fuori orario (12:00-07:00) - bot non avviato
 ```
 
 ## ✅ Verifica che funzioni
