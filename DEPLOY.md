@@ -9,9 +9,9 @@ Crea una cartella per il progetto con questi file:
 ```
 gm-bot/
 ├── bot.js                 (il codice del bot con orario)
-├── restart-scheduler.js   (script per riavvio automatico)
-├── package.json          (configurazione npm)
-└── .env.example          (esempio variabili)
+├── .env.example          (esempio variabili)
+└──  package.json          (configurazione npm)
+
 ```
 
 ### 2. Crea `package.json`
