@@ -62,11 +62,9 @@ Nel Railway dashboard, aggiungi anche:
 
 ## ⚙️ Riavvio automatico
 
-### Railway Cron Jobs (Semplice)
-Railway può riavviare automaticamente il servizio:
-1. Nella dashboard, vai su "Settings"
-2. Aggiungi Cron Job: `0 7 * * *` (ogni giorno alle 07:00)
-3. Il bot si riavvierà automaticamente ogni mattina
+### Serverless
+Selezionate setting e fleg Enable Serverless
+
 
 ## 🔧 Gestione manuale
 
