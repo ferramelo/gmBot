@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
 
 // ID del canale GM
@@ -19,33 +19,18 @@ function isActiveTime() {
     return hour >= 7 && hour < 13;
 }
 
-// Blocca o sblocca canale
-async function toggleChannelPermissions(guild, block = true) {
-    try {
-        const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
-        if (!gmChannel) return console.log('⚠️ Canale GM non trovato');
-
-        await gmChannel.permissionOverwrites.edit(guild.roles.everyone, {
-            [PermissionFlagsBits.SendMessages]: !block
-        });
-
-        console.log(block
-            ? `🔒 Canale GM BLOCCATO`
-            : `🔓 Canale GM SBLOCCATO`
-        );
-    } catch (err) {
-        console.error('❌ Errore nel modificare i permessi:', err);
-    }
+// Funzione per log dello stato del canale
+function logChannelStatus() {
+    console.log(isActiveTime()
+        ? `🔓 Canale GM aperto - solo "gm" permesso`
+        : `🌙 Canale GM in orario fuori attivo - messaggi non "gm" verranno cancellati`
+    );
 }
 
-// Ready
-client.once('ready', async () => {
+// Evento ready
+client.once('ready', () => {
     console.log(`✅ Bot avviato come ${client.user.tag}`);
-
-    for (const guild of client.guilds.cache.values()) {
-        // Blocca o sblocca in base all'orario attuale
-        await toggleChannelPermissions(guild, !isActiveTime());
-    }
+    logChannelStatus();
 });
 
 // Gestione messaggi
@@ -53,25 +38,31 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (message.channel.id !== GM_CHANNEL_ID) return;
 
-    if (!isActiveTime()) {
+    const active = isActiveTime();
+    const content = message.content.toLowerCase().trim();
+
+    if (!active || content !== 'gm') {
+        // Cancella messaggi non validi
         await message.delete().catch(() => {});
-        const warning = await message.channel.send(
-            `⏰ ${message.author}, il canale GM è attivo solo dalle 07:00 alle 13:00 UTC!`
+        const infoMsg = await message.channel.send(
+            !active
+                ? `⏰ ${message.author}, il canale GM è attivo solo dalle 07:00 alle 13:00 UTC!`
+                : `💬 ${message.author}, puoi scrivere solo "gm"!`
         );
-        setTimeout(() => warning.delete().catch(() => {}), 10000);
+        setTimeout(() => infoMsg.delete().catch(() => {}), !active ? 10000 : 5000);
         return;
     }
 
-    if (message.content.toLowerCase().trim() === 'gm') {
-        await message.react('☕').catch(() => {});
-    } else {
-        await message.delete().catch(() => {});
-        const info = await message.channel.send(
-            `💬 ${message.author}, puoi scrivere solo "gm"!`
-        );
-        setTimeout(() => info.delete().catch(() => {}), 5000);
-    }
+    // Messaggio valido in orario
+    await message.react('☕').catch(() => {});
 });
 
 // Login
 client.login(process.env.DISCORD_TOKEN);
+
+// Uscita pulita
+process.on('SIGINT', () => {
+    console.log('🛑 Chiusura bot...');
+    client.destroy();
+    process.exit(0);
+});
