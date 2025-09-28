@@ -29,24 +29,24 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (message.channel.id !== GM_CHANNEL_ID) return;
 
-    // FUORI ORARIO: messaggio cancellato + avviso
+    // FUORI ORARIO
     if (!isActiveTime()) {
         await message.delete().catch(() => {});
         const warning = await message.channel.send(
             `⏰ ${message.author}, il canale GM è attivo solo dalle **07:00 alle 13:00 UTC**! Torna domani mattina ☕`
         );
-        setTimeout(() => warning.delete().catch(() => {}), 10000); // cancella dopo 10s
+        setTimeout(() => warning.delete().catch(() => {}), 10000); // cancella avviso dopo 10s
         console.log(`🚫 Messaggio fuori orario cancellato da ${message.author.username}`);
         return;
     }
 
-    // IN ORARIO ATTIVO: solo "gm" è permesso
+    // IN ORARIO ATTIVO
     if (message.content.toLowerCase().trim() !== 'gm') {
         await message.delete().catch(() => {});
         const info = await message.channel.send(
             `💬 ${message.author}, puoi scrivere solo "gm"!`
         );
-        setTimeout(() => info.delete().catch(() => {}), 5000); // cancella dopo 5s
+        setTimeout(() => info.delete().catch(() => {}), 5000); // cancella avviso dopo 5s
         console.log(`🗑️ Messaggio non valido cancellato da ${message.author.username}: "${message.content}"`);
         return;
     }
@@ -58,3 +58,4 @@ client.on('messageCreate', async (message) => {
 
 // Login
 client.login(process.env.DISCORD_TOKEN);
+
