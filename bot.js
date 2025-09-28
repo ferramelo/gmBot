@@ -1,4 +1,3 @@
-// bot.js
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 require('dotenv').config();
 
@@ -20,7 +19,7 @@ function isActiveTime() {
     return hour >= 7 && hour < 12;
 }
 
-// Modifica permessi del canale per invio messaggi
+// Modifica permessi del canale (solo invio messaggi)
 async function toggleChannelPermissions(guild, allowSend = true) {
     try {
         const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
@@ -39,15 +38,16 @@ async function toggleChannelPermissions(guild, allowSend = true) {
     }
 }
 
-// Quando il bot è pronto
+// Bot pronto
 client.once('ready', async () => {
     console.log(`✅ Bot avviato come ${client.user.tag}`);
 
+    // Aggiorna permessi del canale subito
     for (const guild of client.guilds.cache.values()) {
         await toggleChannelPermissions(guild, isActiveTime());
     }
 
-    // Controlla ogni minuto se modificare i permessi
+    // Aggiorna ogni minuto lo stato del canale
     setInterval(async () => {
         const active = isActiveTime();
         for (const guild of client.guilds.cache.values()) {
@@ -61,18 +61,18 @@ client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (message.channel.id !== GM_CHANNEL_ID) return;
 
-    // Fuori orario: cancella + avviso
+    // Messaggio fuori orario: cancella + avviso
     if (!isActiveTime()) {
         await message.delete().catch(() => {});
         const warning = await message.channel.send(
-            `⏰ ${message.author}, il canale GM è attivo solo dalle 07:00 alle 12:00 UTC! Torna domani mattina ☕`
+            `⏰ ${message.author}, il canale GM è attivo solo dalle 07:00 alle 12:00 UTC! Torna domani ☕`
         );
         setTimeout(() => warning.delete().catch(() => {}), 10000);
         console.log(`🚫 Messaggio fuori orario cancellato da ${message.author.username}`);
         return;
     }
 
-    // Messaggi diversi da "gm"
+    // Messaggio diverso da "gm": cancella + avviso
     if (message.content.toLowerCase().trim() !== 'gm') {
         await message.delete().catch(() => {});
         const info = await message.channel.send(
@@ -83,7 +83,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // Messaggio valido
+    // Messaggio valido "gm"
     await message.react('☕').catch(() => {});
     console.log(`☕ GM ricevuto da ${message.author.username}`);
 });
