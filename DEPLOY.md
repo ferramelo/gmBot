@@ -1,4 +1,4 @@
-# 🚀 Deploy Bot Discord su Railway (Con Orario 07:00-13:00)
+# 🚀 Deploy Bot Discord su Railway (Con Orario 07:00-12:00)
 
 ## Preparazione del progetto
 
@@ -36,12 +36,12 @@ gm-bot/
 
 ## 🛡️ Come funziona il sistema completo
 
-### 🕐 **Orario ATTIVO (07:00-13:00):**
+### 🕐 **Orario ATTIVO (07:00-12:00):**
 - ✅ Canale #gm - tutti possono scrivere
 - ✅ Bot risponde a "gm" con ☕
 - 🗑️ Bot cancella messaggi diversi da "gm" (con avviso gentile)
 
-### 🌙 **Orario INATTIVO (13:00-07:00):**  
+### 🌙 **Orario INATTIVO (12:00-07:00):**  
 - 🔒 Canale #gm - nessuno può scrivere
 - 🚫 Se qualcuno prova a scrivere, il messaggio viene cancellato
 - ⏰ Bot invia avviso: "Torna domani mattina per dire gm!"
