@@ -1,5 +1,8 @@
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
 
+// ID del canale GM
+const GM_CHANNEL_ID = "1172876256547721262";
+
 // Crea una nuova istanza del client
 const client = new Client({
     intents: [
@@ -9,170 +12,113 @@ const client = new Client({
     ]
 });
 
-// Funzione per controllare se è orario attivo (07:00-13:00)
+// Orari attivi: 07:00 - 13:00 (UTC)
 function isActiveTime() {
     const now = new Date();
-    const hour = now.getHours();
+    const hour = now.getUTCHours(); // UTC per coerenza con Railway
     return hour >= 7 && hour < 13;
 }
 
-// Funzione per bloccare/sbloccare il canale
+// Blocca/sblocca canale GM
 async function toggleChannelPermissions(guild, block = true) {
     try {
-        // Trova il canale #gm
-        const gmChannel = guild.channels.cache.find(channel => 
-            channel.name === 'gm' && channel.type === 0 // Text channel
-        );
-        
+        const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
+
         if (!gmChannel) {
-            console.log('Canale #gm non trovato');
+            console.log('⚠️ Canale GM non trovato');
             return;
         }
 
-        // Ottieni il ruolo @everyone
         const everyoneRole = guild.roles.everyone;
 
-        if (block) {
-            // BLOCCA: Rimuovi permesso di scrivere
-            await gmChannel.permissionOverwrites.edit(everyoneRole, {
-                [PermissionFlagsBits.SendMessages]: false
-            });
-            console.log('🔒 Canale #gm BLOCCATO - nessuno può scrivere');
-        } else {
-            // SBLOCCA: Ripristina permesso di scrivere
-            await gmChannel.permissionOverwrites.edit(everyoneRole, {
-                [PermissionFlagsBits.SendMessages]: true
-            });
-            console.log('🔓 Canale #gm SBLOCCATO - si può scrivere normalmente');
-        }
+        await gmChannel.permissionOverwrites.edit(everyoneRole, {
+            [PermissionFlagsBits.SendMessages]: block ? false : true
+        });
+
+        console.log(block
+            ? `🔒 Canale GM BLOCCATO`
+            : `🔓 Canale GM SBLOCCATO`
+        );
+
     } catch (error) {
-        console.error('Errore nel modificare i permessi del canale:', error);
+        console.error('❌ Errore nel modificare i permessi:', error);
     }
 }
 
-// Evento quando il bot è pronto
+// Quando il bot si connette
 client.once('ready', async () => {
-    console.log(`Bot moderatore connesso come ${client.user.tag}!`);
-    console.log('Gestisce canale #gm: 07:00-13:00 sbloccato, 13:00-07:00 bloccato');
-    
-    // Controlla stato iniziale
+    console.log(`✅ Bot moderatore avviato come ${client.user.tag}`);
+    console.log('📅 Regole: 07:00-13:00 UTC aperto, 13:00-07:00 UTC chiuso');
+
     for (const guild of client.guilds.cache.values()) {
-        const shouldBeActive = isActiveTime();
-        await toggleChannelPermissions(guild, !shouldBeActive);
-        
-        if (shouldBeActive) {
-            console.log('🌅 Orario attivo - canale aperto per GM');
-        } else {
-            console.log('🌙 Fuori orario - canale bloccato');
-        }
+        await toggleChannelPermissions(guild, !isActiveTime());
     }
-    
-    // Controlla ogni 30 minuti per cambio stato
+
+    // Controlla ogni minuto lo stato
     setInterval(async () => {
-        const now = new Date();
-        const hour = now.getHours();
-        const minute = now.getMinutes();
-        
-        // Alle 07:00 sblocca, alle 13:00 blocca
-        if ((hour === 7 && minute === 0) || (hour === 13 && minute === 0)) {
-            const shouldBlock = hour === 13;
-            
-            for (const guild of client.guilds.cache.values()) {
-                await toggleChannelPermissions(guild, shouldBlock);
-            }
+        const active = isActiveTime();
+        for (const guild of client.guilds.cache.values()) {
+            await toggleChannelPermissions(guild, !active);
         }
-    }, 60000); // Controlla ogni minuto
+    }, 60 * 1000);
 });
 
-// Evento per i messaggi
+// Gestione messaggi
 client.on('messageCreate', async (message) => {
-    // Ignora i messaggi del bot stesso
     if (message.author.bot) return;
-    
-    // Solo nel canale #gm
-    if (message.channel.name !== 'gm') return;
-    
-    const currentTime = isActiveTime();
-    
-    if (!currentTime) {
-        // FUORI ORARIO: cancella qualsiasi messaggio e avvisa
+    if (message.channel.id !== GM_CHANNEL_ID) return;
+
+    const active = isActiveTime();
+
+    if (!active) {
         try {
             await message.delete();
-            
-            // Invia messaggio temporaneo di avviso
             const warningMsg = await message.channel.send(
-                `⏰ ${message.author}, il canale #gm è attivo solo dalle **07:00 alle 13:00**!\n` +
-                `Torna domani mattina per dire "gm" ☕`
+                `⏰ ${message.author}, il canale GM è attivo solo dalle **07:00 alle 13:00 UTC**!\n` +
+                `Riprova domani mattina ☕`
             );
-            
-            // Cancella l'avviso dopo 10 secondi
-            setTimeout(async () => {
-                try {
-                    await warningMsg.delete();
-                } catch (err) {
-                    console.log('Messaggio di avviso già cancellato');
-                }
-            }, 10000);
-            
+            setTimeout(() => warningMsg.delete().catch(() => {}), 10000);
             console.log(`🚫 Messaggio fuori orario cancellato da ${message.author.username}`);
-            
-        } catch (error) {
-            console.error('Errore nel gestire messaggio fuori orario:', error);
+        } catch (err) {
+            console.error('Errore nel cancellare messaggio fuori orario:', err);
         }
         return;
     }
-    
-    // ORARIO ATTIVO: logica normale del bot GM
+
     const content = message.content.toLowerCase().trim();
-    
+
     if (content === 'gm') {
         try {
-            // Risponde con emoji del caffè
             await message.react('☕');
             console.log(`☕ GM ricevuto da ${message.author.username}`);
-            
-        } catch (error) {
-            console.error('Errore nell\'inviare la reazione:', error);
+        } catch (err) {
+            console.error('Errore nel reagire al messaggio:', err);
         }
     } else {
         try {
-            // Cancella messaggi che non sono "gm" anche in orario attivo
             await message.delete();
-            
-            // Messaggio di avviso più gentile durante orario attivo
             const infoMsg = await message.channel.send(
                 `💬 ${message.author}, in questo canale puoi scrivere solo "gm"!`
             );
-            
-            // Cancella dopo 5 secondi
-            setTimeout(async () => {
-                try {
-                    await infoMsg.delete();
-                } catch (err) {
-                    console.log('Messaggio info già cancellato');
-                }
-            }, 5000);
-            
-            console.log(`🗑️ Messaggio non-GM cancellato da ${message.author.username}: "${message.content}"`);
-            
-        } catch (error) {
-            console.error('Errore nel cancellare il messaggio:', error);
+            setTimeout(() => infoMsg.delete().catch(() => {}), 5000);
+            console.log(`🗑️ Messaggio non valido cancellato da ${message.author.username}: "${message.content}"`);
+        } catch (err) {
+            console.error('Errore nel gestire messaggio non valido:', err);
         }
     }
 });
 
-// Gestione errori
-client.on('error', error => {
-    console.error('Errore del client Discord:', error);
-});
+// Error handling
+client.on('error', err => console.error('⚠️ Errore client Discord:', err));
 
-// Login del bot
-console.log('🚀 Avvio bot moderatore canale GM...');
+// Login
+console.log('🚀 Avvio bot moderatore...');
 client.login(process.env.DISCORD_TOKEN);
 
-// Gestione chiusura graceful
+// Uscita pulita
 process.on('SIGINT', () => {
-    console.log('Chiusura del bot...');
+    console.log('🛑 Chiusura bot...');
     client.destroy();
     process.exit(0);
 });
+
