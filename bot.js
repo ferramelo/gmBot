@@ -1,4 +1,4 @@
-const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
+const { Client, GatewayIntentBits } = require('discord.js');
 require('dotenv').config();
 
 // ID del canale GM
@@ -13,68 +13,34 @@ const client = new Client({
     ]
 });
 
-// Controlla se è orario attivo (07:00-13:00 UTC)
-function isActiveTime() {
+// Controlla se è orario GM attivo (07:00-12:00 UTC)
+function isGMActive() {
     const hour = new Date().getUTCHours();
-    return hour >= 7 && hour < 13;
+    return hour >= 7 && hour < 12;
 }
 
-// Controlla e modifica i permessi del canale GM (solo scrittura)
-async function toggleChannelPermissions(guild, allowSend = true) {
-    try {
-        const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
-        if (!gmChannel) return console.log('⚠️ Canale GM non trovato');
-
-        await gmChannel.permissionOverwrites.edit(guild.roles.everyone, {
-            [PermissionFlagsBits.SendMessages]: allowSend
-        });
-
-        console.log(allowSend
-            ? `🔓 Canale GM SBLOCCATO`
-            : `🔒 Canale GM LIMITATO`
-        );
-    } catch (err) {
-        console.error('❌ Errore nel modificare i permessi:', err);
-    }
-}
-
-// Evento ready
-client.once('ready', async () => {
+// Quando il bot è pronto
+client.once('ready', () => {
     console.log(`✅ Bot avviato come ${client.user.tag}`);
-
-    // Aggiorna lo stato del canale all'avvio
-    for (const guild of client.guilds.cache.values()) {
-        await toggleChannelPermissions(guild, isActiveTime());
-    }
-
-    // Controlla ogni minuto lo stato del canale
-    setInterval(async () => {
-        const active = isActiveTime();
-        for (const guild of client.guilds.cache.values()) {
-            await toggleChannelPermissions(guild, active);
-        }
-    }, 60 * 1000);
 });
 
-// Gestione dei messaggi
+// Gestione messaggi
 client.on('messageCreate', async (message) => {
     if (message.author.bot) return;
     if (message.channel.id !== GM_CHANNEL_ID) return;
 
-    const active = isActiveTime();
-
-    // Fuori orario: cancella messaggi + avviso
-    if (!active) {
+    // Se non è orario GM
+    if (!isGMActive()) {
         await message.delete().catch(() => {});
         const warning = await message.channel.send(
-            `⏰ ${message.author}, il canale GM è attivo solo dalle **07:00 alle 13:00 UTC**! Torna domani mattina ☕`
+            `⏰ ${message.author}, puoi scrivere "gm" solo dalle 07:00 alle 12:00 UTC!`
         );
         setTimeout(() => warning.delete().catch(() => {}), 10000);
         console.log(`🚫 Messaggio fuori orario cancellato da ${message.author.username}`);
         return;
     }
 
-    // In orario: cancella tutto ciò che non è "gm" + avviso
+    // Solo "gm" è permesso
     if (message.content.toLowerCase().trim() !== 'gm') {
         await message.delete().catch(() => {});
         const info = await message.channel.send(
