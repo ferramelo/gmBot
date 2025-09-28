@@ -58,4 +58,4 @@ client.on('messageCreate', async (message) => {
 
 // Login
 client.login(process.env.DISCORD_TOKEN);
-
+ 
