@@ -11,7 +11,7 @@ const client = new Client({
   ]
 });
 
-// Orario GM attivo
+// Orario GM attivo (7:00 - 12:00 UTC)
 function isActiveTime() {
   const hour = new Date().getUTCHours();
   return hour >= 7 && hour < 12;
@@ -22,7 +22,7 @@ async function toggleChannelPermissions(guild, allowSend = true) {
   try {
     const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
     if (!gmChannel) return;
-
+    
     await gmChannel.permissionOverwrites.edit(guild.roles.everyone, {
       [PermissionFlagsBits.SendMessages]: allowSend
     });
@@ -34,16 +34,52 @@ async function toggleChannelPermissions(guild, allowSend = true) {
 // Bot pronto
 client.once('ready', async () => {
   console.log(`✅ Bot avviato come ${client.user.tag}`);
+  
+  // Imposta permessi iniziali per tutti i server
   for (const guild of client.guilds.cache.values()) {
     await toggleChannelPermissions(guild, isActiveTime());
   }
+  
+  // Timer per controllo automatico dei permessi ogni minuto
+  setInterval(async () => {
+    const now = new Date();
+    const hour = now.getUTCHours();
+    const minute = now.getUTCMinutes();
+    
+    // Alle 7:00 UTC - sblocca canale e messaggio di apertura
+    if (hour === 7 && minute === 0) {
+      for (const guild of client.guilds.cache.values()) {
+        await toggleChannelPermissions(guild, true);
+        const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
+        if (gmChannel) {
+          await gmChannel.send("🌅 Buongiorno! Il canale GM è ora aperto. Scrivi 'gm' per salutare! ☕");
+        }
+      }
+      console.log('🔓 Canale GM sbloccato alle 7:00 UTC');
+    }
+    
+    // Alle 12:00 UTC - blocca canale e messaggio di chiusura
+    if (hour === 12 && minute === 0) {
+      for (const guild of client.guilds.cache.values()) {
+        const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
+        if (gmChannel) {
+          await gmChannel.send("🌅 Buon resto di giornata! Ci vediamo domani mattina alle 07:00 ☕");
+        }
+        await toggleChannelPermissions(guild, false);
+      }
+      console.log('🔒 Canale GM bloccato alle 12:00 UTC');
+    }
+  }, 60000); // Controlla ogni minuto
 });
 
 // Gestione messaggi
 client.on('messageCreate', async (message) => {
+  // Ignora messaggi dei bot
   if (message.author.bot) return;
+  
+  // Solo nel canale GM
   if (message.channel.id !== GM_CHANNEL_ID) return;
-
+  
   // Fuori orario
   if (!isActiveTime()) {
     await message.delete().catch(() => {});
@@ -53,8 +89,8 @@ client.on('messageCreate', async (message) => {
     setTimeout(() => warning.delete().catch(() => {}), 10000);
     return;
   }
-
-  // Solo "gm"
+  
+  // Solo "gm" è permesso
   if (message.content.toLowerCase().trim() !== 'gm') {
     await message.delete().catch(() => {});
     const info = await message.channel.send(
@@ -63,10 +99,10 @@ client.on('messageCreate', async (message) => {
     setTimeout(() => info.delete().catch(() => {}), 5000);
     return;
   }
-
-  // Messaggio valido
+  
+  // Messaggio valido - aggiungi reazione
   await message.react('☕').catch(() => {});
 });
 
+// Login del bot
 client.login(process.env.DISCORD_TOKEN);
-
