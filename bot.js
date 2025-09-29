@@ -39,6 +39,12 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Keep-alive server avviato su porta ${PORT}`);
+  
+  // Auto-ping ogni 14 minuti per mantenere attivo
+  setInterval(() => {
+    const url = process.env.RAILWAY_STATIC_URL || `http://localhost:${PORT}`;
+    console.log(`🏓 Auto-ping: ${new Date().toISOString()}`);
+  }, 14 * 60 * 1000); // 14 minuti
 });
 // ← FINE Keep-Alive HTTP
 
@@ -62,8 +68,8 @@ async function toggleChannelPermissions(guild, allowSend = true) {
   }
 }
 
-// Bot pronto
-client.once('ready', async () => {
+// Bot pronto (usando clientReady per compatibilità futura)
+client.once('clientReady', async () => {
   console.log(`✅ Bot avviato come ${client.user.tag}`);
   
   // Imposta permessi iniziali per tutti i server
@@ -127,3 +133,16 @@ client.on('messageCreate', async (message) => {
 
 // Login del bot
 client.login(process.env.DISCORD_TOKEN);
+
+// Gestione shutdown graceful
+process.on('SIGINT', () => {
+  console.log('🔄 SIGINT ricevuto, chiusura bot...');
+  client.destroy();
+  server.close();
+  process.exit(0);
+});
+
+process.on('SIGTERM', () => {
+  console.log('🔄 SIGTERM ricevuto, tento di rimanere attivo...');
+  // Non chiudere il processo, lascia che Railway lo gestisca
+});
