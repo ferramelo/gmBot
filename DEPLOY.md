@@ -19,6 +19,7 @@ gmBot/
 ├── package.json        # Dipendenze Node.js
 ├── .env                # Template variabili d'ambiente
 ├── DEPLOY.md           # File da escludere
+├── .node-version       # Node version
 └── README.md           # Documentazione
 ```
 
