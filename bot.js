@@ -1,4 +1,5 @@
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
+const express = require('express'); // ← AGGIUNGI QUESTA RIGA
 require('dotenv').config();
 
 const GM_CHANNEL_ID = "1172876256547721262"; // <--- Metti id del tuo canale #gm
@@ -10,6 +11,29 @@ const client = new Client({
     GatewayIntentBits.MessageContent
   ]
 });
+
+// ← AGGIUNGI QUESTO BLOCCO Keep-Alive HTTP
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+  const uptime = Math.floor(process.uptime());
+  const hours = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  
+  res.json({
+    status: '✅ GM Bot attivo',
+    servers: client.guilds ? client.guilds.cache.size : 0,
+    uptime: `${hours}h ${minutes}m`,
+    current_time_utc: new Date().toISOString(),
+    gm_status: isActiveTime() ? '🔓 APERTO' : '🔒 CHIUSO'
+  });
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🌐 Keep-alive server avviato su porta ${PORT}`);
+});
+// ← FINE Keep-Alive HTTP
 
 // Orario GM attivo (7:00 - 12:00 UTC)
 function isActiveTime() {
