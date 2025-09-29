@@ -36,11 +36,16 @@ async function toggleChannelPermissions(guild, allowSend = true) {
   }
 }
 
-// Gestione graceful shutdown
+// Gestione graceful shutdown con delay
 process.on('SIGTERM', () => {
-  console.log('🔄 SIGTERM ricevuto, chiusura bot...');
-  client.destroy();
-  process.exit(0);
+  console.log('🔄 SIGTERM ricevuto, tento di rimanere attivo...');
+  
+  // Prova a rimanere attivo per un po'
+  setTimeout(() => {
+    console.log('⏰ Timeout raggiunto, chiudo il bot...');
+    client.destroy();
+    process.exit(0);
+  }, 30000); // 30 secondi di grazia
 });
 
 process.on('SIGINT', () => {
@@ -61,8 +66,10 @@ process.on('uncaughtException', (error) => {
 
 // Bot pronto - usando clientReady per evitare deprecation
 client.once('clientReady', async () => {
-  console.log(`✅ Bot avviato come ${client.user.tag}`);
+      console.log(`✅ Bot avviato come ${client.user.tag}`);
   console.log(`📊 Bot connesso a ${client.guilds.cache.size} server(s)`);
+  console.log(`🚄 Railway Deploy ID: ${process.env.RAILWAY_DEPLOYMENT_ID || 'local'}`);
+  console.log(`🌐 Railway Service: ${process.env.RAILWAY_SERVICE_NAME || 'gmbot'}`);
   
   // Imposta permessi iniziali per tutti i server
   const isActive = isActiveTime();
@@ -211,23 +218,73 @@ async function startBot() {
     if (process.env.PORT) {
       const http = require('http');
       const server = http.createServer((req, res) => {
-        if (req.url === '/health') {
+        // Aggiungi headers CORS e cache
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Cache-Control', 'no-cache');
+        
+        if (req.url === '/health' || req.url === '/') {
           res.writeHead(200, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({
-            status: 'ok',
+            status: 'healthy',
             bot: client.user?.tag || 'connecting',
             guilds: client.guilds.cache.size,
-            uptime: process.uptime()
+            uptime: Math.round(process.uptime()),
+            memory: Math.round(process.memoryUsage().heapUsed / 1024 / 1024),
+            timestamp: new Date().toISOString()
           }));
-        } else {
+        } else if (req.url === '/ping') {
           res.writeHead(200, { 'Content-Type': 'text/plain' });
-          res.end(`Bot Discord attivo: ${client.user?.tag || 'connecting'}`);
+          res.end('pong');
+        } else {
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(`
+            <html>
+              <head><title>GM Bot Discord</title></head>
+              <body>
+                <h1>🤖 Bot Discord GM Attivo</h1>
+                <p><strong>Bot:</strong> ${client.user?.tag || 'connecting'}</p>
+                <p><strong>Server:</strong> ${client.guilds.cache.size}</p>
+                <p><strong>Uptime:</strong> ${Math.round(process.uptime())} secondi</p>
+                <p><strong>Status:</strong> ✅ Online</p>
+              </body>
+            </html>
+          `);
         }
       });
       
-      server.listen(process.env.PORT, () => {
-        console.log(`🌐 Health server avviato sulla porta ${process.env.PORT}`);
+      server.listen(process.env.PORT, '0.0.0.0', () => {
+        console.log(`🌐 Health server avviato su 0.0.0.0:${process.env.PORT}`);
+        
+        // Mantieni il server attivo
+        server.keepAliveTimeout = 120000; // 2 minuti
+        server.headersTimeout = 120000;
       });
+      
+      // Gestione errori server
+      server.on('error', (err) => {
+        console.error('❌ Errore health server:', err);
+      });
+      
+      // Richiesta automatica ogni 10 minuti per mantenere attivo
+      setInterval(() => {
+        const http = require('http');
+        const options = {
+          hostname: '0.0.0.0',
+          port: process.env.PORT,
+          path: '/ping',
+          method: 'GET'
+        };
+        
+        const req = http.request(options, (res) => {
+          console.log(`💓 Self-ping: ${res.statusCode}`);
+        });
+        
+        req.on('error', (err) => {
+          console.log('⚠️ Self-ping error:', err.message);
+        });
+        
+        req.end();
+      }, 600000); // Ogni 10 minuti
     }
     
   } catch (error) {
