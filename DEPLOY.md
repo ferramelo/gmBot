@@ -1,149 +1,317 @@
-# 🚀 Deploy Bot Discord su Railway (Con Orario 07:00-12:00)
+# 🚀 Deploy GM Bot su Railway
 
-## Preparazione del progetto
+Guida completa per il deploy del bot Discord su Railway con gestione automatica orari 7:00-12:00 UTC.
 
-### 1. Crea i file necessari
-Crea una cartella per il progetto con questi file:
+## 📋 Prerequisiti
 
-**📁 Struttura cartella:**
+- Account GitHub
+- Account Railway (gratuito)
+- Bot Discord configurato nel [Developer Portal](https://discord.com/developers/applications)
+- Token del bot
+
+## 🛠️ Preparazione Progetto
+
+### Struttura File
+
 ```
-gm-bot/
-├── bot.js                 (il codice del bot con orario)
-├── .env.example          (esempio variabili)
-└──  package.json          (configurazione npm)
-
+gmBot/
+├── bot.js              # Codice principale del bot
+├── package.json        # Dipendenze Node.js
+├── .env                # Template variabili d'ambiente
+├── DEPLOY.md           # File da escludere
+└── README.md           # Documentazione
 ```
 
-### 2. Crea `package.json`
+### File `.env.example`
+
+```env
+DISCORD_TOKEN=your_discord_token_here
+```
+
+## 🚀 Deploy su Railway
+
+### 1. Prepara il Repository GitHub
+
+```bash
+# Inizializza Git (se non già fatto)
+git init
+
+# Aggiungi tutti i file
+git add .
+
+# Commit iniziale
+git commit -m "Initial commit: GM Bot"
+
+# Collega a GitHub
+git remote add origin https://github.com/tuousername/gmBot.git
+git branch -M main
+git push -u origin main
+```
+
+### 2. Setup Railway
+
+1. Vai su [railway.app](https://railway.app)
+2. Fai login con GitHub
+3. Click su **"New Project"**
+4. Seleziona **"Deploy from GitHub repo"**
+5. Autorizza Railway ad accedere al tuo repository
+6. Seleziona il repository `gmBot`
+
+### 3. Configurazione Variabili d'Ambiente
+
+Nel dashboard Railway:
+
+1. Vai su **"Variables"**
+2. Aggiungi la variabile:
+   - **Key**: `DISCORD_TOKEN`
+   - **Value**: Il tuo token Discord
+3. Click su **"Add"**
+
+Railway rileverà automaticamente `package.json` e installerà le dipendenze.
+
+### 4. Generare Dominio Pubblico (Opzionale)
+
+Per il monitoring HTTP:
+
+1. Vai su **"Settings"** → **"Networking"**
+2. Click su **"Generate Domain"**
+3. Salva l'URL generato (es: `gmbot-production-xxxx.up.railway.app`)
+
+Visitando l'URL vedrai lo stato del bot in JSON:
+
 ```json
 {
-  "name": "gmBot",
-  "version": "1.0.0",
-  "description": "Bot Discord per GM",
-  "main": "bot.js",
-  "scripts": {
-    "start": "node bot.js"
-  },
-  "engines": {
-    "node": ">=20.x"
-  },
-  "dependencies": {
-    "discord.js": "^14.14.1",
-    "dotenv": "^16.3.1"
-  }
+  "status": "✅ GM Bot attivo",
+  "servers": 1,
+  "uptime": "2h 30m",
+  "current_time_utc": "2025-09-29T10:00:00.000Z",
+  "gm_status": "🔓 APERTO"
 }
 ```
 
-## 🛡️ Come funziona il sistema completo
+## ⚙️ Configurazione Discord
 
-### 🕐 **Orario ATTIVO (07:00-12:00):**
-- ✅ Canale #gm - tutti possono scrivere
-- ✅ Bot risponde a "gm" con ☕
-- 🗑️ Bot cancella messaggi diversi da "gm" (con avviso gentile)
+### Setup Server Discord
 
-### 🌙 **Orario INATTIVO (12:00-07:00):**  
-- 🔒 Canale #gm - nessuno può scrivere
-- 🚫 Canale **Bloccato**
-- ⏰ Bot invia avviso: "Torna domani mattina per dire gm!"
+1. Crea un canale testuale chiamato esattamente **"gm"** (minuscolo)
+2. Il bot gestirà automaticamente i permessi
 
-### 📊 **Calcolo ore Railway:**
-- Bot attivo 24/7 ma consuma poche risorse
-- ~**50-100 ore/mese** (molto meno del limite 500!)
+### Permessi Bot Necessari
 
-## Deploy su Railway
+Quando crei l'invite link nel Developer Portal, seleziona:
 
-### Step 1-3: Come nella guida normale
-(GitHub upload, Railway connection, variables setup)
+- ✅ Manage Channels
+- ✅ Manage Messages
+- ✅ Read Messages/View Channels
+- ✅ Send Messages
+- ✅ Add Reactions
 
-### Step 4: Configurazione orario
-Nel Railway dashboard, aggiungi anche:
-- **Nome**: `TZ`
-- **Valore**: `Europe/Rome` (o il tuo fuso orario)
-
-## ⚙️ Come configurare su Railway Free:
-
-### Serverless
-- Abilita Serverless → così il container dorme quando non ci sono richieste.
-- Start Command: `node bot.js`
-- Restart Policy: non serve, il bot si riattiva automaticamente quando arriva un messaggio.
-  
-  Con questa configurazione:
-- Il bot usa pochissime ore perché è inattivo quando nessuno scrive.
-- Il canale GM rimane bloccato fuori orario.
-- Ricevi avvisi se qualcuno scrive qualcosa di diverso da "gm".
-
-
-## 🔧 Gestione manuale
-
-### Riavviare manualmente:
-- Dashboard Railway → "Restart"
-- Oppure push su GitHub per trigger deploy
-
-### Controllare orario attivo:
-Nei log vedrai:
+**URL Invite esempio:**
 ```
-Avvio del bot in orario attivo...
-Bot connesso come NomeBot#1234!
-Orario attivo: 07:00-12:00
+https://discord.com/api/oauth2/authorize?client_id=YOUR_CLIENT_ID&permissions=268454928&scope=bot
 ```
 
-O se fuori orario:
+## 🕐 Funzionamento Orari
+
+### Orario Attivo (7:00-12:00 UTC)
+
+**Equivalenze fuso italiano:**
+- Estate (UTC+2): 09:00-14:00
+- Inverno (UTC+1): 08:00-13:00
+
+**Comportamento:**
+- Canale sbloccato automaticamente
+- Messaggio di benvenuto: "🌅 Buongiorno! Il canale GM è ora aperto. Scrivi 'gm' per salutare! ☕"
+- Accetta solo messaggi "gm"
+- Reazione automatica ☕
+- Cancella messaggi non validi con avviso temporaneo
+
+### Orario Inattivo (12:00-7:00 UTC)
+
+**Comportamento:**
+- Messaggio di chiusura: "🌅 Buon resto di giornata! Ci vediamo domani mattina alle 07:00 ☕"
+- Canale bloccato (permessi scrittura rimossi)
+- Nessuno può inviare messaggi
+
+## 📊 Monitoraggio
+
+### Log Railway
+
+Visualizza log in tempo reale:
 ```
-Fuori orario (12:00-07:00) - bot non avviato
+Railway Dashboard → Deployments → Latest → Logs
 ```
 
-## ✅ Verifica che funzioni
-
-### Controlla i log:
-Dovresti vedere:
+Log tipici del bot:
 ```
-Bot connesso come NomeBot#1234!
-Il bot permetterà solo "gm" nel canale #gm, cancellando tutto il resto
+🌐 Keep-alive server avviato su porta 8080
+✅ Bot avviato come gmBot#2557
+📊 Bot connesso a 1 server(s)
+🔓 Canale GM sbloccato alle 7:00 UTC
 ```
 
-### Testa il bot:
-1. Vai nel canale #gm del tuo Discord
-2. Scrivi "gm"
-3. Dovresti vedere la reazione ☕
-4. Prova a scrivere altro → dovrebbe essere cancellato
+### Railway CLI (Opzionale)
 
-## 🔧 Gestione
+Installa CLI per accesso veloce:
+```bash
+npm install -g @railway/cli
+railway login
+railway logs
+```
 
-### Riavviare il bot:
-- Nel dashboard Railway, clicca "Restart"
+## 💰 Limiti Piano Gratuito
 
-### Aggiornare il codice:
-1. Modifica i file su GitHub
-2. Railway rileverà automaticamente i cambi
-3. Rideploy automatico
+**Railway Free Tier:**
+- 500 ore/mese di runtime
+- $5 di credito/mese
+- 1 GB RAM
+- 1 GB storage
 
-### Monitorare:
-- **Logs**: vedi tutti i log in tempo reale
-- **Metrics**: uso CPU, memoria, traffico
-- **Deployments**: storico dei deploy
+**Consumo stimato bot GM:**
+- ~50-100 MB RAM
+- <0.1 vCPU
+- Traffico minimo
 
-## 💰 Limiti gratuiti Railway
-- **500 ore/mese** di uptime
-- **100GB** di traffico in uscita
-- **1GB** RAM
-- **1GB** storage
+Il bot può funzionare 24/7 nel piano gratuito senza problemi.
+
+## 🔧 Manutenzione
+
+### Aggiornare il Bot
+
+```bash
+# Modifica il codice localmente
+git add .
+git commit -m "Update: descrizione modifiche"
+git push
+
+# Railway rideploya automaticamente
+```
+
+### Riavvio Manuale
+
+Railway Dashboard → **"Restart"**
+
+### Visualizzare Metriche
+
+Dashboard mostra:
+- CPU usage
+- Memory usage
+- Network egress
+- Deployment history
 
 ## 🚨 Troubleshooting
 
-### Bot non si connette:
-- Controlla che `DISCORD_TOKEN` sia impostato correttamente
-- Verifica nei log se ci sono errori
+### Bot non si avvia
 
-### Bot non risponde:
-- Assicurati che il canale si chiami esattamente "gm"
-- Controlla i permessi del bot nel server Discord
-- Metti il tuo id del canale #gm 
+**Controlla:**
+1. `DISCORD_TOKEN` impostato correttamente
+2. Token valido nel Developer Portal
+3. Log Railway per errori specifici
 
-### Superi le 500 ore:
-- Upgrading a Railway Pro ($5/mese) per uptime illimitato
-- Oppure gestisci manualmente quando è attivo
+**Errori comuni:**
+```
+Error: Cannot find module 'discord.js'
+→ Verifica package.json, redeploy
 
-## 🎯 Pro Tips
-- Usa `railway logs` nella CLI per vedere i log dal terminale
-- Imposta notifiche per quando il bot va offline
-- Fai backup regolari del codice su GitHub
+Invalid token
+→ Rigenera token nel Developer Portal
+```
+
+### Bot non risponde ai comandi
+
+**Verifica:**
+1. Canale si chiama esattamente "gm" (minuscolo)
+2. Bot ha permessi necessari
+3. Bot è online (check presenza Discord)
+
+### Restart frequenti
+
+**Normale per piano gratuito:**
+- Railway può fare sleep/restart
+- Bot si riconnette automaticamente
+- Nessun impatto sulla funzionalità
+
+**Per eliminare restart:**
+- Upgrade a Railway Pro ($5/mese)
+
+### Superamento limite ore
+
+**Soluzioni:**
+1. Upgrade a Railway Pro (uptime illimitato)
+2. Monitora uso nel dashboard
+3. Considera alternative (Render, Fly.io)
+
+## 🔐 Sicurezza
+
+### Best Practices
+
+- Non committare mai `.env` con token
+- Usa `.gitignore` correttamente
+- Rigenera token se compromesso
+- Mantieni dipendenze aggiornate
+
+### Rotazione Token
+
+Se il token viene esposto:
+1. Developer Portal → Bot → Reset Token
+2. Aggiorna variabile su Railway
+3. Redeploy automatico
+
+## 📈 Ottimizzazioni
+
+### Performance
+
+Il bot è già ottimizzato con:
+- HTTP keep-alive nativo
+- Gestione graceful shutdown
+- Timer efficienti
+- Cache Discord.js
+
+### Scaling
+
+Per gestire molti server:
+- Memory e CPU scalano automaticamente
+- Keep-alive previene sleep mode
+- Multi-server nativo
+
+## 🎯 Checklist Deploy
+
+- [ ] Repository GitHub creato e pushato
+- [ ] Progetto Railway collegato
+- [ ] Variabile `DISCORD_TOKEN` impostata
+- [ ] Build completato con successo
+- [ ] Bot online su Discord
+- [ ] Canale #gm creato nel server
+- [ ] Test messaggio "gm" funzionante
+- [ ] Reazione ☕ ricevuta
+- [ ] Dominio pubblico generato (opzionale)
+- [ ] URL monitoring salvato
+
+## 🔗 Risorse Utili
+
+- [Railway Docs](https://docs.railway.app)
+- [Discord.js Guide](https://discordjs.guide)
+- [Discord Developer Portal](https://discord.com/developers/applications)
+- [Node.js Docs](https://nodejs.org/docs)
+
+## 💡 Tips Avanzati
+
+### Multi-Environment
+
+Crea branch separati per testing:
+```bash
+git checkout -b development
+# Railway può deployare da branch specifici
+```
+
+### Monitoring Esterno
+
+Usa servizi come UptimeRobot per pingare l'endpoint HTTP ogni 5 minuti.
+
+### Backup
+
+Railway mantiene storico deploy - puoi fare rollback a versioni precedenti dal dashboard.
+
+---
+
+**Supporto:** Per problemi, apri una issue su GitHub o consulta i log Railway.
