@@ -22,7 +22,7 @@ gmBot/
 └── README.md           # Documentazione
 ```
 
-### File `.env.example`
+### File `.env`
 
 ```env
 DISCORD_TOKEN=your_discord_token_here
