@@ -1,10 +1,12 @@
 {
   "name": "gmBot",
   "version": "1.0.0",
-  "description": "Bot Discord per GM",
+  "description": "Bot Discord per GM su Railway",
   "main": "bot.js",
   "scripts": {
-    "start": "node bot.js"
+    "start": "node bot.js",
+    "dev": "node bot.js",
+    "railway:start": "node bot.js"
   },
   "engines": {
     "node": ">=20.x"
@@ -12,5 +14,8 @@
   "dependencies": {
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1"
-  }
+  },
+  "keywords": ["discord", "bot", "railway"],
+  "author": "Tu",
+  "license": "MIT"
 }
