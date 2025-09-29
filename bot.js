@@ -80,16 +80,6 @@ client.on('messageCreate', async (message) => {
   // Solo nel canale GM
   if (message.channel.id !== GM_CHANNEL_ID) return;
   
-  // Fuori orario
-  if (!isActiveTime()) {
-    await message.delete().catch(() => {});
-    const warning = await message.channel.send(
-      `⏰ ${message.author}, ci vediamo domani mattina alle 07:00 ☕`
-    );
-    setTimeout(() => warning.delete().catch(() => {}), 10000);
-    return;
-  }
-  
   // Solo "gm" è permesso
   if (message.content.toLowerCase().trim() !== 'gm') {
     await message.delete().catch(() => {});
