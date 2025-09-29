@@ -100,7 +100,7 @@ client.once('clientReady', async () => {
       for (const guild of client.guilds.cache.values()) {
         const gmChannel = guild.channels.cache.get(GM_CHANNEL_ID);
         if (gmChannel) {
-          await gmChannel.send("🌅 Buon resto di giornata! Ci vediamo domani mattina alle 07:00 ☕");
+          await gmChannel.send("🌅 Buon resto di giornata! Ci vediamo domani mattina ☕");
         }
         await toggleChannelPermissions(guild, false);
       }
