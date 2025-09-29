@@ -1,5 +1,5 @@
 const { Client, GatewayIntentBits, PermissionFlagsBits } = require('discord.js');
-const express = require('express'); // ← AGGIUNGI QUESTA RIGA
+const http = require('http'); // ← Usa HTTP nativo invece di Express
 require('dotenv').config();
 
 const GM_CHANNEL_ID = "1172876256547721262"; // <--- Metti id del tuo canale #gm
@@ -12,25 +12,32 @@ const client = new Client({
   ]
 });
 
-// ← AGGIUNGI QUESTO BLOCCO Keep-Alive HTTP
-const app = express();
+// ← Keep-Alive HTTP con server nativo Node.js
 const PORT = process.env.PORT || 3000;
 
-app.get('/', (req, res) => {
-  const uptime = Math.floor(process.uptime());
-  const hours = Math.floor(uptime / 3600);
-  const minutes = Math.floor((uptime % 3600) / 60);
-  
-  res.json({
-    status: '✅ GM Bot attivo',
-    servers: client.guilds ? client.guilds.cache.size : 0,
-    uptime: `${hours}h ${minutes}m`,
-    current_time_utc: new Date().toISOString(),
-    gm_status: isActiveTime() ? '🔓 APERTO' : '🔒 CHIUSO'
-  });
+const server = http.createServer((req, res) => {
+  if (req.url === '/') {
+    const uptime = Math.floor(process.uptime());
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    
+    const response = {
+      status: '✅ GM Bot attivo',
+      servers: client.guilds ? client.guilds.cache.size : 0,
+      uptime: `${hours}h ${minutes}m`,
+      current_time_utc: new Date().toISOString(),
+      gm_status: isActiveTime() ? '🔓 APERTO' : '🔒 CHIUSO'
+    };
+    
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(response, null, 2));
+  } else {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+  }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`🌐 Keep-alive server avviato su porta ${PORT}`);
 });
 // ← FINE Keep-Alive HTTP
