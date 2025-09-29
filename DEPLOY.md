@@ -248,7 +248,6 @@ Invalid token
 ### Best Practices
 
 - Non committare mai `.env` con token
-- Usa `.gitignore` correttamente
 - Rigenera token se compromesso
 - Mantieni dipendenze aggiornate
 
