@@ -120,10 +120,12 @@ node --trace-warnings bot.js
 ### Struttura File:
 ```
 gmBot/
-├── bot.js          # Codice principale
-├── package.json    # Dipendenze
-├── .env           # Token (non committare!)
-└── README.md      # Documentazione
+├── bot.js              # Codice principale del bot
+├── package.json        # Dipendenze Node.js
+├── .env                # Template variabili d'ambiente
+├── DEPLOY.md           # File da escludere
+├── .node-version       # Node version
+└── README.md           # Documentazione
 ```
 
 ## 🤝 Contributi
