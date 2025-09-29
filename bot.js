@@ -185,6 +185,15 @@ client.on('warn', (warning) => {
   console.warn('⚠️ Warning Discord Client:', warning);
 });
 
+// Keep-alive per evitare che il container si fermi
+function keepAlive() {
+  setInterval(() => {
+    console.log(`💓 Bot attivo - ${new Date().toISOString()}`);
+    console.log(`📊 Memoria: ${Math.round(process.memoryUsage().heapUsed / 1024 / 1024)} MB`);
+    console.log(`⏰ Uptime: ${Math.round(process.uptime())} secondi`);
+  }, 300000); // Log ogni 5 minuti
+}
+
 // Login del bot con migliore error handling
 async function startBot() {
   try {
@@ -194,6 +203,33 @@ async function startBot() {
     
     await client.login(process.env.DISCORD_TOKEN);
     console.log('🚀 Login completato con successo');
+    
+    // Avvia keep-alive
+    keepAlive();
+    
+    // Health check endpoint se disponibile
+    if (process.env.PORT) {
+      const http = require('http');
+      const server = http.createServer((req, res) => {
+        if (req.url === '/health') {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            status: 'ok',
+            bot: client.user?.tag || 'connecting',
+            guilds: client.guilds.cache.size,
+            uptime: process.uptime()
+          }));
+        } else {
+          res.writeHead(200, { 'Content-Type': 'text/plain' });
+          res.end(`Bot Discord attivo: ${client.user?.tag || 'connecting'}`);
+        }
+      });
+      
+      server.listen(process.env.PORT, () => {
+        console.log(`🌐 Health server avviato sulla porta ${process.env.PORT}`);
+      });
+    }
+    
   } catch (error) {
     console.error('❌ Errore durante il login:', error);
     process.exit(1);
