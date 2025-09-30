@@ -27,7 +27,6 @@ gmBot/
 
 ```env
 DISCORD_TOKEN=your_discord_token_here
-TZ=Europe/Rome
 ```
 
 ## 🚀 Deploy su Railway
